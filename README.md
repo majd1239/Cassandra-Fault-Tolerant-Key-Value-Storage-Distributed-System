@@ -1,5 +1,5 @@
-<h1><b>Fault-tolerant Cluster</b></h1><br>
-<h2>System schema: Gossip membership protocol </h2>
+<h1><b>Fault-Tolerant Distributed System</b></h1>
+<h2>System schema: Gossip Membership Protocol </h2>
 <ol>
 <li>Application layer: creates all members and start the each Node</li>
 <li>P2P layer: Gossip membership layer </li>
