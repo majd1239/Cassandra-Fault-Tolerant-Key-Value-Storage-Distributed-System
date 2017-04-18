@@ -6,7 +6,7 @@
 <li>Emulated Network: send and recieve messages</li>
 </ol>
 <ul>
-<li>* Completeness all the time: every non-faulty process must detect every node join, failure, and leave</li>
+<li>Completeness all the time: every non-faulty process must detect every node join, failure, and leave</li>
 <li>Accuracy of failure detection when there are no message losses and message delays are small</li>
 <li>When there are message losses, completeness must be satisfied and accuracy must be high. It must achieve all of these even under simultaneous multiple failures.</li>
 </ul>
