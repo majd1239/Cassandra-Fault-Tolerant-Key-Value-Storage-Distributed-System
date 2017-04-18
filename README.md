@@ -5,6 +5,7 @@
 <li>P2P layer: Gossip membership layer </li>
 <li>Emulated Network: send and recieve messages</li>
 </ol>
+<h3>The Gossip Protocol satisfies the following:</h3>
 <ul>
 <li>Completeness all the time: every non-faulty process must detect every node join, failure, and leave</li>
 <li>Accuracy of failure detection when there are no message losses and message delays are small</li>
