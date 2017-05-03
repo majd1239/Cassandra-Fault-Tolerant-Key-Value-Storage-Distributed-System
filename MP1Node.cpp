@@ -1,13 +1,9 @@
 #include "MP1Node.h"
 #include <random>
-/*
- * Note: You can change/add any functions in MP1Node.{h,cpp}
- */
+
 
 /**
  * Overloaded Constructor of the MP1Node class
- * You can add new members to the class if you think it
- * is necessary for your logic to work
  */
 MP1Node::MP1Node(Member *member, Params *params, EmulNet *emul, Log *log, Address *address) {
     for( int i = 0; i < 6; i++ ) {
@@ -80,9 +76,7 @@ void MP1Node::nodeStart(char *servaddrstr, short servport) {
  * DESCRIPTION: Find out who I am and start up
  */
 int MP1Node::initThisNode(Address *joinaddr) {
-    /*
-     * This function is partially implemented and may require changes
-     */
+    
     int id = *(int*)(&memberNode->addr.addr);
     int port = *(short*)(&memberNode->addr.addr[4]);
     
