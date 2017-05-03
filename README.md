@@ -1,7 +1,7 @@
 <h1><b>Fault-Tolerant Distributed System</b></h1>
 <h2>System schema: Gossip Membership Protocol </h2>
 <ol>
-<li>Application layer: creates all members and start the each Node</li>
+<li>Application layer: creates all members and start each Node</li>
 <li>P2P layer: Gossip membership layer </li>
 <li>Emulated Network: send and recieve messages</li>
 </ol>
