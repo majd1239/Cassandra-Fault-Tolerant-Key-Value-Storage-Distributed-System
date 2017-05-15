@@ -29,11 +29,15 @@
  * 				4) Client side CRUD APIs
  */
 
-
+// message types, reply is the message from node to coordinator
 enum MessageType_ {CREATE_, READ_, UPDATE_, DELETE_, UPDATEREPLY_,DELETEREPLY_,CREATEREPLY_, READREPLY_,
     DELETEFAIL_,READFAIL_,UPDATEFAIL_};
 
+// Transaction Id
+static int g_transID = 0;
 
+// enum of replica types
+enum ReplicaType {PRIMARY, SECONDARY, TERTIARY};
 class info{
 public:
     int TransID;
