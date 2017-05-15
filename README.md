@@ -11,7 +11,7 @@
 <li>Accuracy of failure detection when there are no message losses and message delays are small</li>
 <li>When there are message losses, completeness must be satisfied and accuracy must be high. It must achieve all of these even under simultaneous multiple failures.</li>
 </ul>
-<h3>The Key-Value Stor Supports the following</h3>
+<h3>The Key-Value Store Supports the following</h3>
 <ul>
 <li>CRUD operations (Create, Read, Update, Delete).</li>
 <li>Load-balancing (via a distributed hashing ring to hash both servers and keys).</li>
