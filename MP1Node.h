@@ -75,11 +75,13 @@ public:
     void initMemberListTable(Member *memberNode);
     void printAddress(Address *addr);
     virtual ~MP1Node();
+    
 private:
     int ExtractPort(char* addr);
     int ExtractID(char* addr);
     Address* GetAddress(int ID, short Port);
     void SendMessage(Address &To,MsgTypes Msg);
+    void AddMember(MemberListEntry Entry);
     void Gossip();
 };
 

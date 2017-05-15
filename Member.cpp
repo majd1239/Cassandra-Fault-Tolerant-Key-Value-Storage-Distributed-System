@@ -30,8 +30,6 @@ Address& Address::operator =(const Address& anotherAddress) {
 
 /**
  * Compare two Address objects
- * Return true/non-zero if they have the same ip address and port number 
- * Return false/zero if they are different 
  */
 bool Address::operator ==(const Address& anotherAddress) {
 	return !memcmp(this->addr, anotherAddress.addr, sizeof(this->addr));
@@ -156,6 +154,7 @@ Member::Member(const Member &anotherMember) {
 	this->memberList = anotherMember.memberList;
 	this->myPos = anotherMember.myPos;
 	this->mp1q = anotherMember.mp1q;
+	this->mp2q = anotherMember.mp2q;
 }
 
 /**
@@ -173,5 +172,6 @@ Member& Member::operator =(const Member& anotherMember) {
 	this->memberList = anotherMember.memberList;
 	this->myPos = anotherMember.myPos;
 	this->mp1q = anotherMember.mp1q;
+	this->mp2q = anotherMember.mp2q;
 	return *this;
 }

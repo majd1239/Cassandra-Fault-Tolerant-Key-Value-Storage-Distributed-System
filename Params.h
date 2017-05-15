@@ -31,6 +31,7 @@ public:
 	int globaltime;
 	int allNodesJoined;
 	short PORTNUM;
+	int CRUDTEST;
 	Params();
 	void setparams(char *);
 	int getcurrtime();

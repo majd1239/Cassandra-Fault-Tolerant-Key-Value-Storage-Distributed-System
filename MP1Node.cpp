@@ -1,9 +1,13 @@
 #include "MP1Node.h"
 #include <random>
-
+/*
+ * Note: You can change/add any functions in MP1Node.{h,cpp}
+ */
 
 /**
  * Overloaded Constructor of the MP1Node class
+ * You can add new members to the class if you think it
+ * is necessary for your logic to work
  */
 MP1Node::MP1Node(Member *member, Params *params, EmulNet *emul, Log *log, Address *address) {
     for( int i = 0; i < 6; i++ ) {
@@ -59,11 +63,17 @@ void MP1Node::nodeStart(char *servaddrstr, short servport) {
     
     // Self booting routines
     if( initThisNode(&joinaddr) == -1 ) {
+#ifdef DEBUGLOG
+        log->LOG(&memberNode->addr, "init_thisnode failed. Exit.");
+#endif
         exit(1);
     }
     
     if( !introduceSelfToGroup(&joinaddr) ) {
         finishUpThisNode();
+#ifdef DEBUGLOG
+        log->LOG(&memberNode->addr, "Unable to join self to group. Exiting.");
+#endif
         exit(1);
     }
     
@@ -76,7 +86,9 @@ void MP1Node::nodeStart(char *servaddrstr, short servport) {
  * DESCRIPTION: Find out who I am and start up
  */
 int MP1Node::initThisNode(Address *joinaddr) {
-    
+    /*
+     * This function is partially implemented and may require changes
+     */
     int id = *(int*)(&memberNode->addr.addr);
     int port = *(short*)(&memberNode->addr.addr[4]);
     
@@ -88,12 +100,12 @@ int MP1Node::initThisNode(Address *joinaddr) {
     memberNode->heartbeat = 0;
     memberNode->pingCounter = TFAIL;
     memberNode->timeOutCounter = -1;
-    
-    //Add own entry to membership table
     initMemberListTable(memberNode);
     MemberListEntry Own_Entry(id,port,memberNode->heartbeat,memberNode->timeOutCounter);
     memberNode->memberList.push_back(Own_Entry);
-
+#ifdef DEBUGLOG
+    log->logNodeAdd(&memberNode->addr, &memberNode->addr);
+#endif
     return 0;
 }
 
@@ -126,6 +138,17 @@ Address* MP1Node::GetAddress(int ID, short Port)
     return address;
     
 }
+//Add member to membership list
+void MP1Node::AddMember(MemberListEntry entry)
+{
+    memberNode->memberList.push_back(entry);
+    
+    Address* MemberAdded=GetAddress(entry.getid(), entry.getport());
+    
+#ifdef DEBUGLOG
+    log->logNodeAdd(&memberNode->addr,MemberAdded);
+#endif
+}
 
 //Send Message
 void MP1Node::SendMessage(Address &To,MsgTypes Msg)
@@ -133,7 +156,7 @@ void MP1Node::SendMessage(Address &To,MsgTypes Msg)
     vector<MemberListEntry>* list =new vector<MemberListEntry>;
     
     for(auto entry: memberNode->memberList) list->push_back(entry);
-
+    
     size_t msgsize = sizeof(MessageHdr) + sizeof(list)+1;
     
     MessageHdr *msg = (MessageHdr *) malloc(msgsize * sizeof(char));
@@ -156,7 +179,7 @@ void MP1Node::Gossip()
     
     std::mt19937 g1 (seed1);
     
-    for(int i=0;i<2;i++)
+    for(int i=0;i<4;i++)
     {
         int index=g1()%memberNode->memberList.size();
         
@@ -164,20 +187,33 @@ void MP1Node::Gossip()
         
         SendMessage(*To, GOSSIP);
     }
-  
+    
 }
 
 /**
  * Join the distributed system
  */
-int MP1Node::introduceSelfToGroup(Address *joinaddr)
-{
+int MP1Node::introduceSelfToGroup(Address *joinaddr) {
+    
+#ifdef DEBUGLOG
+    static char s[1024];
+#endif
+    
     if ( 0 == memcmp((char *)&(memberNode->addr.addr), (char *)&(joinaddr->addr), sizeof(memberNode->addr.addr))) {
         // I am the group booter (first process to join the group). Boot up the group
+#ifdef DEBUGLOG
+        log->LOG(&memberNode->addr, "Starting up group...");
+#endif
         memberNode->inGroup = true;
     }
     else {
-
+        
+        
+#ifdef DEBUGLOG
+        sprintf(s, "Trying to join...");
+        log->LOG(&memberNode->addr, s);
+#endif
+        
         // send JOINREQ message to introducer member
         SendMessage(*joinaddr, JOINREQ);
     }
@@ -190,11 +226,10 @@ int MP1Node::introduceSelfToGroup(Address *joinaddr)
  * DESCRIPTION: Wind up this node and clean up state
  */
 int MP1Node::finishUpThisNode(){
-
+    
     memberNode->inited = false;
     
     return 0;
-    
 }
 
 /**
@@ -243,14 +278,14 @@ void MP1Node::checkMessages() {
  * Message handler for different message types
  */
 bool MP1Node::recvCallBack(void *env, char *data, int size ) {
-
+    
     MessageHdr* source_msg = (MessageHdr *)data;
     
     if(source_msg->msgType==JOINREQ) //Node requested to join
     {
         vector<MemberListEntry>** Source_MemberList = (vector<MemberListEntry> **)(source_msg+1);
         
-        for( auto entry : **Source_MemberList) memberNode->memberList.push_back(entry);
+        for( auto entry : **Source_MemberList) AddMember(entry);
         
         Address source_address = source_msg->From;
         
@@ -267,7 +302,7 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
             if(entry.getid()==ExtractID(memberNode->addr.addr))
                 continue;
             
-            memberNode->memberList.push_back(entry);
+            AddMember(entry);
         }
         
         memberNode->inGroup=true;
@@ -297,11 +332,11 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
                 }
             }
             if(it==end(memberNode->memberList))
-                memberNode->memberList.push_back(entry);
+                AddMember(entry);
         }
         
     }
-
+    
     
     return true;
 }
@@ -317,7 +352,7 @@ void MP1Node::nodeLoopOps() {
     
     memberNode->memberList[0].settimestamp(memberNode->timeOutCounter);
     memberNode->heartbeat++;
-        
+    
     Gossip();
     
     for(auto it = memberNode->memberList.begin(); it != memberNode->memberList.end(); ++it)
@@ -327,6 +362,9 @@ void MP1Node::nodeLoopOps() {
         if(memberNode->timeOutCounter - it->timestamp > TREMOVE)
         {
             memberNode->memberList.erase(it);
+#ifdef DEBUGLOG
+            log->logNodeRemove(&memberNode->addr, MemberAdded);
+#endif
             break;
         }
     }
@@ -379,5 +417,5 @@ void MP1Node::initMemberListTable(Member *memberNode) {
 void MP1Node::printAddress(Address *addr)
 {
     printf("%d.%d.%d.%d:%d \n",  addr->addr[0],addr->addr[1],addr->addr[2],
-           addr->addr[3], *(short*)&addr->addr[4]) ;    
+           addr->addr[3], *(short*)&addr->addr[4]) ;
 }
